@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartAI Master Tutor</title>
     
-    <meta name="description" content="SmartAI Tutor - Your personal AI professor. Generate master notes, mindmaps, and solve doubts instantly!">
+    <meta name="description" content="SmartAI Tutor - Your personal AI professor. Generate master notes, mindmaps, and solve doubts instantly from Topic, PDF, or Camera!">
     <meta property="og:title" content="SmartAI Master Tutor 🚀">
-    <meta property="og:description" content="Upload PDF, text, or YouTube links to get instant topper-level study notes, mindmaps, and MCQs!">
+    <meta property="og:description" content="Upload PDF, YouTube links, or take a Photo directly to get instant study notes, mindmaps, and MCQs!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80">
     <meta property="og:type" content="website">
     
@@ -66,22 +66,31 @@
             <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
                 <div class="text-center mb-8">
                     <h1 class="text-3xl font-black text-slate-800 mb-2">What do you want to learn?</h1>
-                    <p class="text-slate-500 font-medium">Upload notes, paste a link, or just type a topic.</p>
+                    <p class="text-slate-500 font-medium">Upload notes, paste a link, or use your camera.</p>
                 </div>
                 
                 <div class="grid grid-cols-3 gap-3 mb-6 bg-slate-50 p-2 rounded-xl border border-slate-100">
                     <button onclick="setMode('topic')" id="btn-topic" class="py-3 rounded-lg font-bold text-sm transition-all active-tab flex flex-col items-center gap-1"><i class="fa-solid fa-magnifying-glass"></i> Topic</button>
-                    <button onclick="setMode('file')" id="btn-file" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                    <button onclick="setMode('image')" id="btn-image" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-camera"></i> Scan Page</button>
-                    <button onclick="setMode('youtube')" id="btn-youtube" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-brands fa-youtube"></i> Video</button>
-                    <button onclick="setMode('url')" id="btn-url" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-link"></i> Link</button>
-                    <button onclick="setMode('text')" id="btn-text" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-align-left"></i> Text</button>
+                    <button onclick="setMode('image')" id="btn-image" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1 text-green-700"><i class="fa-solid fa-camera"></i> Camera/Scan</button>
+                    <button onclick="setMode('file')" id="btn-file" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1 text-blue-700"><i class="fa-solid fa-file-pdf"></i> PDF File</button>
+                    <button onclick="setMode('youtube')" id="btn-youtube" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1 text-red-700"><i class="fa-brands fa-youtube"></i> Video</button>
+                    <button onclick="setMode('url')" id="btn-url" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1 text-orange-700"><i class="fa-solid fa-link"></i> Link</button>
+                    <button onclick="setMode('text')" id="btn-text" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-align-left"></i> Notes</button>
                 </div>
 
                 <div id="in-topic" class="block"><input type="text" id="val-topic" placeholder="e.g. Thermodynamics Physics Class 11..." class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-lg transition"></div>
                 <div id="in-file" class="hidden"><div class="border-2 border-dashed border-blue-300 rounded-xl p-12 text-center hover:bg-blue-50 cursor-pointer transition" onclick="document.getElementById('val-file').click()"><input type="file" id="val-file" accept=".pdf" class="hidden" onchange="updateName('file')"><i class="fa-solid fa-cloud-arrow-up text-4xl text-blue-500 mb-3"></i><p class="font-bold text-slate-700 text-lg" id="file-name">Upload Study PDF</p></div></div>
-                <div id="in-image" class="hidden"><div class="border-2 border-dashed border-green-300 rounded-xl p-12 text-center hover:bg-green-50 cursor-pointer transition" onclick="document.getElementById('val-image').click()"><input type="file" id="val-image" accept="image/*" class="hidden" onchange="updateName('image')"><i class="fa-solid fa-images text-4xl text-green-600 mb-3"></i><p class="font-bold text-slate-700 text-lg" id="image-name">Camera or Gallery</p></div></div>
-                <div id="in-youtube" class="hidden"><input type="url" id="val-youtube" placeholder="Paste YouTube Video URL..." class="w-full p-4 bg-red-50 border border-red-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 font-semibold text-lg transition"></div>
+                
+                <div id="in-image" class="hidden">
+                    <div class="border-2 border-dashed border-green-300 rounded-xl p-8 text-center hover:bg-green-50 cursor-pointer transition" onclick="document.getElementById('val-image').click()">
+                        <input type="file" id="val-image" accept="image/*" capture="environment" class="hidden" onchange="updateName('image')">
+                        <i class="fa-solid fa-camera-rotate text-5xl text-green-600 mb-4"></i>
+                        <p class="font-black text-green-900 text-xl" id="image-name">Click here to Take a Photo</p>
+                        <p class="text-green-700 text-sm mt-1">or upload an existing picture of your notes.</p>
+                    </div>
+                </div>
+                
+                <div id="in-youtube" class="hidden"><input type="url" id="val-youtube" placeholder="Paste Any YouTube Video or Shorts URL..." class="w-full p-4 bg-red-50 border border-red-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 font-semibold text-lg transition"></div>
                 <div id="in-url" class="hidden"><input type="url" id="val-url" placeholder="Paste Article URL..." class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-lg transition"></div>
                 <div id="in-text" class="hidden"><textarea id="val-text" rows="6" placeholder="Paste long notes or essay here..." class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition"></textarea></div>
 
@@ -104,11 +113,10 @@
                 <div class="w-24 h-24 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-8"></div>
                 <h3 class="text-2xl font-black text-slate-800">Professor AI is analyzing...</h3>
                 <p class="text-slate-500 font-medium mt-2 text-lg">Extracting concepts, building mindmaps & crafting MCQs</p>
-                <p class="text-blue-400 text-sm mt-4 font-bold animate-pulse">(If server is asleep, this may take 50 seconds)</p>
+                <p class="text-blue-400 text-sm mt-4 font-bold animate-pulse">(Wait 50 seconds if first load)</p>
             </div>
 
             <div id="resultArea" class="hidden flex-col lg:flex-row gap-6 h-[80vh]">
-                
                 <div class="w-full lg:w-2/3 bg-white rounded-2xl border border-slate-200 shadow-xl flex flex-col overflow-hidden relative">
                     <div class="bg-slate-900 text-white px-5 py-4 flex flex-wrap justify-between items-center gap-3 z-10">
                         <span class="font-bold text-lg hidden sm:block"><i class="fa-solid fa-book-open text-blue-400 mr-2"></i> Master Notes</span>
@@ -126,17 +134,15 @@
                         <div class="font-bold flex items-center gap-2 text-lg"><i class="fa-solid fa-robot text-2xl"></i> Doubt Solver AI</div>
                     </div>
                     <div id="chatBox" class="flex-1 p-4 overflow-y-auto custom-scroll space-y-4 bg-slate-50/50 min-h-[300px]">
-                        <div class="flex"><div class="bg-white border border-slate-200 p-3 rounded-xl rounded-tl-none shadow-sm max-w-[85%] text-sm font-medium">Hello! Ask me any questions about the notes, formulas, or MCQs.</div></div>
+                        <div class="flex"><div class="bg-white border border-slate-200 p-3 rounded-xl rounded-tl-none shadow-sm max-w-[85%] text-sm font-medium">Any doubts about the notes or MCQs? Just ask me below.</div></div>
                     </div>
                     <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
                         <input type="text" id="chatInput" placeholder="Ask your doubt..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-medium" onkeypress="if(event.key === 'Enter') askDoubt()">
                         <button onclick="askDoubt()" id="sendBtn" class="bg-indigo-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-md transition hover:bg-indigo-700 hover:scale-105"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>
                 </div>
-
             </div>
         </div>
-
     </div>
 
     <div id="toast" class="fixed hidden bottom-5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl z-50 font-bold flex items-center gap-3">
@@ -174,7 +180,7 @@
 
         function updateName(type) {
             const input = document.getElementById(`val-${type}`);
-            if(input.files.length > 0) document.getElementById(`${type}-name`).innerHTML = `<span class='text-blue-600'>${input.files[0].name}</span>`;
+            if(input.files.length > 0) document.getElementById(`${type}-name`).innerHTML = `<span class='text-green-900'>Photo Selected: ${input.files[0].name}</span>`;
         }
 
         function showToast(message) {
@@ -195,10 +201,26 @@
             
             if(currentMode === 'topic') formData.append('content', document.getElementById('val-topic').value);
             else if(currentMode === 'text') formData.append('content', document.getElementById('val-text').value);
-            else if(currentMode === 'youtube') formData.append('content', document.getElementById('val-youtube').value);
             else if(currentMode === 'url') formData.append('content', document.getElementById('val-url').value);
             else if(currentMode === 'file') formData.append('file', document.getElementById('val-file').files[0]);
             else if(currentMode === 'image') formData.append('file', document.getElementById('val-image').files[0]);
+            else if(currentMode === 'youtube') {
+                let rawUrl = document.getElementById('val-youtube').value;
+                
+                // 🚀 SMART YOUTUBE URL EXTRACTOR 🚀
+                // Yeh regex youtube.com, youtu.be, aur shorts sabhi se Video ID nikal lega
+                let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#\&\?]*).*/;
+                let match = rawUrl.match(regExp);
+                
+                if (match && match[2].length === 11) {
+                    let cleanUrl = 'https://www.youtube.com/watch?v=' + match[2];
+                    formData.append('content', cleanUrl);
+                } else {
+                    errorBox.innerText = "Invalid YouTube Link! Please paste a correct video or shorts link.";
+                    errorBox.classList.remove('hidden');
+                    return; // Stop execution if link is totally invalid
+                }
+            }
 
             errorBox.classList.add('hidden');
             resultArea.classList.add('hidden');
@@ -208,11 +230,13 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             try {
+                // Correct Render API Endpoint URL for Summarize
                 const res = await fetch('https://smartai-server-1crb.onrender.com/api/summarize', { method: 'POST', body: formData });
                 const data = await res.json();
                 
                 if(res.ok && data.status === 'success') {
                     fullContextRaw = data.summary;
+                    
                     document.getElementById('output').innerHTML = marked.parse(fullContextRaw);
                     
                     document.querySelectorAll('code.language-mermaid').forEach((block) => {
@@ -236,7 +260,7 @@
                 }
             } catch (e) { 
                 showScreen('inputScreen');
-                errorBox.innerText = "Connection Failed. Is server waking up? Try again in 30 seconds."; 
+                errorBox.innerText = "Connection Failed. Is server busy? Wait 30 seconds and try again."; 
                 errorBox.classList.remove('hidden');
             }
         }
@@ -254,6 +278,7 @@
             btn.disabled = true;
 
             try {
+                // Correct Render API Endpoint URL for Chat
                 const res = await fetch('https://smartai-server-1crb.onrender.com/api/chat', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -267,7 +292,7 @@
                 chatBox.innerHTML += `<div class="text-center text-xs text-red-500">Connection error.</div>`;
             } finally {
                 chatBox.scrollTop = chatBox.scrollHeight;
-                btn.hendled = false;
+                btn.disabled = false;
             }
         }
 
@@ -276,7 +301,7 @@
         async function shareNotes() {
             if (navigator.share) {
                 try {
-                    await navigator.share({ title: 'Master Study Notes', text: 'Check out these Topper-Level AI generated study notes:\n\n' + fullContextRaw, });
+                    await navigator.share({ title: 'Master Study Notes', text: 'Check out these AI generated topper-level notes:\n\n' + fullContextRaw, });
                     showToast("Notes Shared!");
                 } catch (error) { console.log('Share cancelled'); }
             } else {
