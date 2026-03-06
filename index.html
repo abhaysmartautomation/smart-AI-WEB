@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAI Master Tutor</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    
+    <style>
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .active-tab { background-color: #3b82f6; color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transform: scale(1.02); }
+        .inactive-tab { background-color: white; color: #64748b; }
+        
+        /* Advanced Typography for Output */
+        #output h1 { font-size: 2rem; font-weight: 900; color: #1e293b; margin-bottom: 1rem; }
+        #output h2 { color: #1d4ed8; font-size: 1.5rem; font-weight: 800; margin-top: 2rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        #output p { margin-bottom: 1rem; color: #334155; line-height: 1.8; font-size: 1.1rem; }
+        #output ul { list-style-type: none; margin-left: 0.5rem; margin-bottom: 1.5rem; }
+        #output li { margin-bottom: 0.5rem; position: relative; padding-left: 1.5rem; color: #334155; line-height: 1.6;}
+        #output li::before { content: "🔹"; position: absolute; left: 0; font-size: 0.8rem; top: 0.3rem; }
+        #output strong { color: #0f172a; background-color: #fef08a; padding: 0.1rem 0.3rem; border-radius: 4px; font-weight: 700; }
+        #output blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; font-style: italic; color: #475569; background: #f8fafc; padding: 1rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem;}
+        
+        /* Visual Mindmap Styling */
+        .mermaid { display: flex; justify-content: center; margin: 2rem 0; background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px solid #e2e8f0; overflow-x: auto;}
+
+        @keyframes slideUp { from { bottom: -50px; opacity: 0; } to { bottom: 20px; opacity: 1; } }
+        .toast-animate { animation: slideUp 0.3s ease-out forwards; }
+
+        /* --- PRO PDF PRINT STYLING --- */
+        @media print {
+            body { background-color: white; margin: 0; padding: 0; }
+            nav, .lg\:w-1\/2:first-child, #chatBox, #chatInput, #sendBtn, .bg-slate-900, button { display: none !important; }
+            .lg\:w-1\/2:last-child { width: 100%; margin: 0; padding: 0; }
+            #resultArea, #output, .bg-white { box-shadow: none !important; border: none !important; border-radius: 0 !important; }
+            #output { padding: 0; }
+            h2 { page-break-after: avoid; }
+            .mermaid { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen relative pb-20">
+
+    <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-graduation-cap text-xl"></i></div>
+            <span class="text-2xl font-extrabold tracking-tight text-slate-800">SmartAI <span class="text-blue-600">Tutor</span></span>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        
+        <div class="w-full lg:w-1/2 flex flex-col gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+                <h2 class="text-xl font-bold text-slate-800 mb-6"><i class="fa-solid fa-layer-group text-blue-500 mr-2"></i> Select Input Method</h2>
+                
+                <div class="grid grid-cols-3 gap-3 mb-6 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                    <button onclick="setMode('topic')" id="btn-topic" class="py-3 rounded-lg font-bold text-sm transition-all active-tab flex flex-col items-center gap-1"><i class="fa-solid fa-magnifying-glass"></i> Topic</button>
+                    <button onclick="setMode('file')" id="btn-file" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                    <button onclick="setMode('image')" id="btn-image" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-camera"></i> Scan Page</button>
+                    <button onclick="setMode('youtube')" id="btn-youtube" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-brands fa-youtube"></i> Video</button>
+                    <button onclick="setMode('url')" id="btn-url" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-link"></i> Link</button>
+                    <button onclick="setMode('text')" id="btn-text" class="py-3 rounded-lg font-bold text-sm transition-all inactive-tab flex flex-col items-center gap-1"><i class="fa-solid fa-align-left"></i> Text</button>
+                </div>
+
+                <div id="in-topic" class="block"><input type="text" id="val-topic" placeholder="e.g. Thermodynamics Physics Class 11..." class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-lg transition"></div>
+                <div id="in-file" class="hidden"><div class="border-2 border-dashed border-blue-300 rounded-xl p-12 text-center hover:bg-blue-50 cursor-pointer transition" onclick="document.getElementById('val-file').click()"><input type="file" id="val-file" accept=".pdf" class="hidden" onchange="updateName('file')"><i class="fa-solid fa-cloud-arrow-up text-4xl text-blue-500 mb-3"></i><p class="font-bold text-slate-700 text-lg" id="file-name">Upload Study PDF</p></div></div>
+                <div id="in-image" class="hidden"><div class="border-2 border-dashed border-green-300 rounded-xl p-12 text-center hover:bg-green-50 cursor-pointer transition" onclick="document.getElementById('val-image').click()"><input type="file" id="val-image" accept="image/*" class="hidden" onchange="updateName('image')"><i class="fa-solid fa-images text-4xl text-green-600 mb-3"></i><p class="font-bold text-slate-700 text-lg" id="image-name">Camera or Gallery</p></div></div>
+                <div id="in-youtube" class="hidden"><input type="url" id="val-youtube" placeholder="Paste YouTube Video URL..." class="w-full p-4 bg-red-50 border border-red-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 font-semibold text-lg transition"></div>
+                <div id="in-url" class="hidden"><input type="url" id="val-url" placeholder="Paste Article URL..." class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-lg transition"></div>
+                <div id="in-text" class="hidden"><textarea id="val-text" rows="6" placeholder="Paste long notes or essay here..." class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition"></textarea></div>
+
+                <button onclick="generateNotes()" id="mainBtn" class="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Create Master Notes
+                </button>
+            </div>
+            <div id="errorBox" class="hidden bg-red-100 text-red-800 p-4 rounded-xl font-bold border border-red-200 text-center transition-all"></div>
+        </div>
+
+        <div class="w-full lg:w-1/2 flex flex-col gap-6">
+            
+            <div id="loader" class="hidden bg-white p-8 rounded-2xl shadow-md border border-slate-200 h-[600px] flex items-center justify-center">
+                <div class="text-center animate-pulse">
+                    <div class="w-20 h-20 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
+                    <h3 class="text-xl font-bold text-slate-700">Professor AI is typing...</h3>
+                    <p class="text-slate-500 mt-2">Generating Deep Concept Maps & Formulas</p>
+                </div>
+            </div>
+
+            <div id="resultArea" class="hidden flex-col h-[800px] gap-4">
+                
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-md flex-1 flex flex-col overflow-hidden relative">
+                    <div class="bg-slate-900 text-white px-4 py-4 flex flex-wrap justify-between items-center gap-3 z-10">
+                        <span class="font-bold text-lg hidden sm:block"><i class="fa-solid fa-book-open text-blue-400 mr-2"></i> Master Notes</span>
+                        <div class="flex gap-2 w-full sm:w-auto justify-end">
+                            <button onclick="copyNotes()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2"><i class="fa-regular fa-copy"></i> Copy</button>
+                            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2"><i class="fa-solid fa-print"></i> Save PDF</button>
+                            <button onclick="shareNotes()" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2"><i class="fa-solid fa-share-nodes"></i> Share</button>
+                        </div>
+                    </div>
+                    <div id="output" class="p-6 md:p-10 overflow-y-auto custom-scroll bg-white flex-1 relative"></div>
+                </div>
+
+                <div class="bg-white rounded-2xl border-2 border-indigo-200 shadow-xl h-80 flex flex-col overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-3 flex justify-between items-center z-10">
+                        <div class="font-bold flex items-center gap-2"><i class="fa-solid fa-robot text-xl"></i> Doubt Solver AI</div>
+                    </div>
+                    <div id="chatBox" class="flex-1 p-4 overflow-y-auto custom-scroll space-y-4 bg-slate-50/50">
+                        <div class="flex"><div class="bg-white border border-slate-200 p-3 rounded-xl rounded-tl-none shadow-sm max-w-[85%] text-sm font-medium">Any doubts in the notes, formulas, or MCQ? Ask me!</div></div>
+                    </div>
+                    <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
+                        <input type="text" id="chatInput" placeholder="Ask your doubt..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-medium" onkeypress="if(event.key === 'Enter') askDoubt()">
+                        <button onclick="askDoubt()" id="sendBtn" class="bg-indigo-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-md transition hover:bg-indigo-700 hover:scale-105"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed hidden bottom-5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl z-50 font-bold flex items-center gap-3">
+        <i class="fa-solid fa-circle-check text-green-400 text-xl"></i>
+        <span id="toastMsg">Action Successful!</span>
+    </div>
+
+    <script>
+        // Initialize Mermaid for Mindmaps
+        mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+        let currentMode = 'topic';
+        let fullContextRaw = "";
+
+        function setMode(m) {
+            currentMode = m;
+            ['topic', 'file', 'image', 'youtube', 'url', 'text'].forEach(i => {
+                document.getElementById('in-'+i).classList.add('hidden');
+                document.getElementById('btn-'+i).classList.replace('active-tab', 'inactive-tab');
+            });
+            document.getElementById('in-'+m).classList.remove('hidden');
+            document.getElementById('btn-'+m).classList.replace('inactive-tab', 'active-tab');
+        }
+
+        function updateName(type) {
+            const input = document.getElementById(`val-${type}`);
+            if(input.files.length > 0) document.getElementById(`${type}-name`).innerHTML = `<span class='text-blue-600'>${input.files[0].name}</span>`;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('toast-animate');
+            setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('toast-animate'); }, 3000);
+        }
+
+        async function generateNotes() {
+            const btn = document.getElementById('mainBtn');
+            const loader = document.getElementById('loader');
+            const resultArea = document.getElementById('resultArea');
+            const errorBox = document.getElementById('errorBox');
+            
+            const formData = new FormData();
+            formData.append('mode', currentMode);
+            
+            if(currentMode === 'topic') formData.append('content', document.getElementById('val-topic').value);
+            else if(currentMode === 'text') formData.append('content', document.getElementById('val-text').value);
+            else if(currentMode === 'youtube') formData.append('content', document.getElementById('val-youtube').value);
+            else if(currentMode === 'url') formData.append('content', document.getElementById('val-url').value);
+            else if(currentMode === 'file') formData.append('file', document.getElementById('val-file').files[0]);
+            else if(currentMode === 'image') formData.append('file', document.getElementById('val-image').files[0]);
+
+            errorBox.classList.add('hidden');
+            loader.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            btn.innerHTML = 'Analyzing & Structuring...';
+            btn.disabled = true;
+
+            try {
+                // EXTREMELY IMPORTANT: Correct Render API Endpoint URL for Summarize
+                const res = await fetch('https://smartai-server-1crb.onrender.com/api/summarize', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                if(res.ok && data.status === 'success') {
+                    fullContextRaw = data.summary;
+                    
+                    document.getElementById('output').innerHTML = marked.parse(fullContextRaw);
+                    
+                    document.querySelectorAll('code.language-mermaid').forEach((block) => {
+                        const div = document.createElement('div');
+                        div.className = 'mermaid';
+                        div.textContent = block.textContent;
+                        block.parentNode.replaceWith(div);
+                    });
+                    
+                    try { await mermaid.run({ querySelector: '.mermaid' }); } catch (err) { console.log('Mermaid error:', err); }
+
+                    resultArea.classList.remove('hidden');
+                    resultArea.classList.add('flex');
+                    if(window.innerWidth < 1024) resultArea.scrollIntoView({behavior: 'smooth'});
+                } else {
+                    errorBox.innerText = data.error || "An error occurred.";
+                    errorBox.classList.remove('hidden');
+                }
+            } catch (e) { 
+                errorBox.innerText = "Connection Failed. Is server waking up? Try again in 30 seconds."; 
+                errorBox.classList.remove('hidden');
+            } finally { 
+                loader.classList.add('hidden'); 
+                btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Create Master Notes';
+                btn.disabled = false; 
+            }
+        }
+
+        async function askDoubt() {
+            const input = document.getElementById('chatInput');
+            const chatBox = document.getElementById('chatBox');
+            const btn = document.getElementById('sendBtn');
+            const q = input.value.trim();
+            if(!q) return;
+
+            chatBox.innerHTML += `<div class="flex justify-end"><div class="bg-indigo-600 text-white p-3 rounded-xl rounded-tr-none shadow-sm max-w-[85%] text-sm font-medium">${q}</div></div>`;
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+            btn.disabled = true;
+
+            try {
+                // EXTREMELY IMPORTANT: Correct Render API Endpoint URL for Chat
+                const res = await fetch('https://smartai-server-1crb.onrender.com/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({context: fullContextRaw, question: q})
+                });
+                const data = await res.json();
+                if(res.ok && data.status === 'success') {
+                    chatBox.innerHTML += `<div class="flex"><div class="bg-white border border-slate-200 p-3 rounded-xl rounded-tl-none shadow-sm max-w-[85%] text-sm font-medium">${data.answer}</div></div>`;
+                }
+            } catch(e) {
+                chatBox.innerHTML += `<div class="text-center text-xs text-red-500">Connection error.</div>`;
+            } finally {
+                chatBox.scrollTop = chatBox.scrollHeight;
+                btn.disabled = false;
+            }
+        }
+
+        function copyNotes() { navigator.clipboard.writeText(fullContextRaw); showToast("Study Notes Copied!"); }
+
+        async function shareNotes() {
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'Master Study Notes', text: 'Check out these Topper-Level AI generated study notes:\n\n' + fullContextRaw, });
+                    showToast("Notes Shared!");
+                } catch (error) { console.log('Share cancelled'); }
+            } else {
+                copyNotes(); showToast("Sharing not supported. Notes copied instead!");
+            }
+        }
+    </script>
+</body>
+</html>
